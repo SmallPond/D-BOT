@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include "RGB.h"
 #include "app/app.h"
 #include "hal/hal.h"
 #include "hal/nvs.h"
@@ -43,7 +42,6 @@ void setup() {
     dbot.init();
 
     controller_init();
-    // strip_init();
     // HWSerial.begin(115200);
     App_Init();
     // INIT_DONE();
