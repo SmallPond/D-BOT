@@ -1,3 +1,6 @@
 .pio
 .vscode
 src/secrets.h
+managed_components/
+.DS_Store
+lib/.DS_Store

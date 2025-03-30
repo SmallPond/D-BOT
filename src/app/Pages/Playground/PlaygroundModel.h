@@ -17,6 +17,8 @@ namespace Page
 class PlaygroundModel
 {
 public:
+
+    virtual ~PlaygroundModel() {};
     int16_t app;
     void Init();
     void Deinit();

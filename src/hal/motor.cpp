@@ -434,10 +434,10 @@ static int run_balance_task(BLDCMotor *motor_l, BLDCMotor *motor_r,
     float all_adj = 0;
 
     float mpu_pitch = HAL::imu_get_pitch();
-    float mpu_yaw = HAL::imu_get_yaw();
+    // float mpu_yaw = HAL::imu_get_yaw();
     // float gyro_z = HAL::imu_get_gyro_z();
-
-    if (rc = check_balance_status(mpu_pitch)) {
+    rc = check_balance_status(mpu_pitch);
+    if (rc) {
         motor_l->target = 0;
         motor_r->target = 0;
         goto out;

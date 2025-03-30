@@ -32,7 +32,8 @@ namespace Page
 class SettingView: public PlaygroundView
 {
 public:
-    SettingView(){}
+    SettingView(){};
+    ~SettingView(){};
     void Create(lv_obj_t* root);
     void Delete();
     void UpdateView(SettingInfo *info);

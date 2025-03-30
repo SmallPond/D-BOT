@@ -19,6 +19,7 @@ class SettingModel: public PlaygroundModel
 
 public:
     SettingModel();
+    ~SettingModel() {};
     void Init();
     void Deinit();
     void Update(void* pg_ui);

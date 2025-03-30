@@ -36,8 +36,8 @@ void HAL::Init()
 #endif
     log_system(SYSTEM_INFO, "init mpu...");
     imu_init();
-    log_system(SYSTEM_INFO, "init motor...");
-    motor_init();
+    // log_system(SYSTEM_INFO, "init motor...");
+    // motor_init();
     
     // log_system(SYSTEM_INFO, "D-BOT IP: %s", WiFi.localIP().toString().c_str());
     // tf.init();

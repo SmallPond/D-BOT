@@ -11,7 +11,8 @@ namespace Page
 class PlaygroundView
 {
 public:
-
+    PlaygroundView(){};
+    virtual ~PlaygroundView(){};
     int32_t MAX_VALUE = 100;
     int32_t MIN_VALUE = 0;
     int32_t SCALE_LEFT_BOUND_TICKS = 200;
