@@ -1,0 +1,3 @@
+[submodule "components/lottie_player"]
+	path = components/lottie_player
+	url = https://github.com/espressif2022/lottie_player
