@@ -22,7 +22,7 @@ void HAL::Init()
     display_init();
     // system_ui_init();
     buzz_init();
-    buzz_tone(700, 30);
+    // buzz_tone(700, 30);
     log_system(SYSTEM_INFO, "init audio...");
     audio_init();
     delay(1000);
@@ -46,7 +46,7 @@ void HAL::Init()
 
     knob_init();
     // super_dial_init();
-    // system_ui_uninit();
+    system_ui_uninit();
     // xTaskNotifyGive(handleTaskIMU);
     // xTaskNotifyGive(handleTaskMotor);
 }
