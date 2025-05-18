@@ -21,11 +21,19 @@ PIDController pid_bot_s {
     .limit = BOT_MAX_STEERING
 };
 
+#ifdef D_BOT_HW_V1
+PIDController pid_bot_m {
+    .P = 0.07, .I = 0, .D = 0.027, .ramp = 100000, 
+    .limit = MOTOR_MAX_SPEED
+}; 
+#else
+
 PIDController pid_bot_m {
     .P = 0.03, .I = 0, .D = 0.027, .ramp = 100000, 
     .limit = MOTOR_MAX_SPEED
 }; 
 
+#endif
 static int execute_cmd(Command& cmd) 
 {
     int rc = 0;
@@ -35,8 +43,13 @@ static int execute_cmd(Command& cmd)
     switch (cmd.type) {
         case CommandType::SPIN:
             abs_yaw = HAL::imu_get_abs_yaw();
-            // actual yaw need to be x2
+#ifdef D_BOT_HW_V1
+            dbot.setTargetValue(cmd, abs_yaw - cmd.value);
+#else
+             // actual yaw need to be x2
             dbot.setTargetValue(cmd, abs_yaw - cmd.value *2);
+#endif
+           
             cmd.status = CommandStatus::EXECUTING;
             cur = abs_yaw;
             break;
@@ -145,7 +158,7 @@ int DBot::setTargetValue(Command& cmd, double target)
     if (cmd.status != CommandStatus::PENDING) {
         return -1;
     }
-    log_d("set target: %lf, CUR MOTOR angle %lf, bot angle %lf.\n", target, 
+    log_i("set target: %lf, CUR MOTOR angle %lf, bot angle %lf.\n", target, 
                 HAL::motor_get_cur_angle(), HAL::imu_get_abs_yaw());
     cmd.target_value = target;
     return 0;
