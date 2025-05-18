@@ -28,10 +28,35 @@ LowPassFilter lpf_steering = {
     .Tf = 0.5
 };
 
-#define MOTOR_MAX_TORQUE 7
 #define BALANCE_WAITTING_TIME  1000
 #define BALANCE_ENABLE_STEERING_I_TIME  3000
 #define BALANCE_STOP_PITCH_OFFSET 40
+
+// P = 0.1 I= 0.08
+#ifdef D_BOT_HW_V1
+
+#define MOTOR_MAX_TORQUE 8
+
+PIDController pid_stb {
+    .P = 0.8, .I = 0, .D = 0.02, .ramp = 100000, 
+    .limit = MOTOR_MAX_TORQUE 
+}; 
+
+#define PID_VEL_P (0.35)
+#define PID_VEL_I (0.00)
+#define PID_VEL_D (0.00)
+
+
+PIDController pid_steering {
+    .P = 0.015, .I = 0, .D = 0.00, .ramp = 100000, 
+    .limit = MOTOR_MAX_TORQUE / 2
+};
+
+
+#else
+
+#define MOTOR_MAX_TORQUE 7
+
 // control algorithm parametersw
 // stabilisation pid
 // 初始值 P0.3 D: 0.02  -- 0.18 0.024
@@ -39,24 +64,28 @@ PIDController pid_stb {
     .P = 0.3, .I = 0, .D = 0.008, .ramp = 100000, 
     .limit = MOTOR_MAX_TORQUE 
 }; 
-// P = 0.1 I= 0.08
+
 #define PID_VEL_P (0.3)
 #define PID_VEL_I (0.02)
 #define PID_VEL_D (0.00)
-PIDController pid_vel {
-    .P = PID_VEL_P, .I = PID_VEL_I, .D = PID_VEL_D, .ramp = 100000, 
-    .limit = MOTOR_MAX_TORQUE
-};
-
-PIDController pid_vel_tmp{
-    .P = PID_VEL_P, .I = PID_VEL_I, .D = PID_VEL_D, .ramp = 100000, 
-    .limit = MOTOR_MAX_TORQUE
-};
 
 PIDController pid_steering {
     .P = 0.01, .I = 0, .D = 0.00, .ramp = 100000, 
     .limit = MOTOR_MAX_TORQUE / 2
 };
+
+#endif
+
+PIDController pid_vel {
+    .P = PID_VEL_P, .I = PID_VEL_I, .D = PID_VEL_D, .ramp = 100000, 
+    .limit = MOTOR_MAX_TORQUE
+};
+
+PIDController  pid_vel_tmp{
+    .P = PID_VEL_P, .I = PID_VEL_I, .D = PID_VEL_D, .ramp = 100000, 
+    .limit = MOTOR_MAX_TORQUE
+};
+
 
 float g_mid_value = -2; // 偏置参数
 float g_throttle = 0;
@@ -691,11 +720,7 @@ static void init_motor(BLDCMotor *motor,BLDCDriver3PWM *driver,GenericSensor *se
 
     motor->monitor_variables = _MON_TARGET | _MON_VEL | _MON_ANGLE;
 
-#ifdef XK_WIRELESS_PARAMETER
-    motor->useMonitoring(HAL::get_wl_tuning());
-#else
     motor->useMonitoring(Serial);
-#endif
     //初始化电机
     motor->init();
     // motor->initFOC();
@@ -713,6 +738,12 @@ void motor_initFOC(BLDCMotor *motor, float offset)
             log_i("motor zero electric angle: %.2f", motor->zero_electric_angle);
         }
     }
+
+#ifdef XK_WIRELESS_PARAMETER
+    motor->useMonitoring(HAL::get_wl_tuning());
+#else
+    motor->useMonitoring(Serial);
+#endif
 }
 
 void HAL::motor_init(void)
