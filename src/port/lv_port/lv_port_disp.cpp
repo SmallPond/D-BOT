@@ -30,7 +30,7 @@ void my_print(const char *buf)
     // log_i("%s@%d %s->%s\r\n", file, line, fun);
     // Serial.printf("%s@%d %s->%s\r\n", file, line, fun, dsc);
 	// Serial.flush();
-    log_i("%s", buf);
+    // log_i("%s", buf);
 }
 
 
