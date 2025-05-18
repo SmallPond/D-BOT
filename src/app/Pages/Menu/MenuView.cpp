@@ -125,7 +125,7 @@ void MenuView::Group_Init()
 	lv_group_set_focus_cb(ui.group, onFocus);
 	lv_indev_set_group(lv_get_indev(LV_INDEV_TYPE_ENCODER), ui.group);
 
-	lv_group_add_obj(ui.group, ui.dialpad.icon);
+	// lv_group_add_obj(ui.group, ui.dialpad.icon);
 	lv_group_add_obj(ui.group, ui.switches.icon);
 	lv_group_add_obj(ui.group, ui.hass.icon);
 	lv_group_add_obj(ui.group, ui.system.icon);
