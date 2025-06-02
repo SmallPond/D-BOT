@@ -36,8 +36,8 @@ void on_bot_m_pid(char* cmd)
 
 void on_imu_offset(char *cmd)
 {
-    commander.scalar(&g_mid_value, cmd);
-    log_i("imu offset change to %.2f\n", g_mid_value);
+    commander.scalar(&g_zero_angle, cmd);
+    log_i("imu offset change to %.2f\n", g_zero_angle);
 }
 
 void on_motor(char* cmd)
@@ -53,7 +53,7 @@ static void on_store_parameter(char* cmd)
     nvs_set_pid_config(PID_T_CONFIG, pid_steering);
     nvs_set_pid_config(PID_R_CONFIG, pid_bot_m);
     nvs_set_pid_config(PID_B_CONFIG, pid_bot_s);
-    nvs_set_float(NVS_D_BOT, MACHINE_MID_VALUE_KEY, g_mid_value);
+    nvs_set_float(NVS_D_BOT, MACHINE_MID_VALUE_KEY, g_zero_angle);
     HAL::audio_play_music("BattChargeStart");
 }
 
@@ -66,7 +66,7 @@ int ctrl_restore_parameter(void)
         || nvs_get_pid_config(PID_T_CONFIG, pid_steering)
         || nvs_get_pid_config(PID_R_CONFIG, pid_bot_m)
         || nvs_get_pid_config(PID_B_CONFIG, pid_bot_s)
-        || nvs_get_float(NVS_D_BOT, MACHINE_MID_VALUE_KEY, g_mid_value)) {
+        || nvs_get_float(NVS_D_BOT, MACHINE_MID_VALUE_KEY, g_zero_angle)) {
         return -1;
     }
     pid_vel_tmp=pid_vel;

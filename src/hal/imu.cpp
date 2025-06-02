@@ -97,8 +97,8 @@ void bmi270_update(void)
     float angleAccX, angleAccY;
     float gyroX, gyroY, gyroZ;
     float interval;
-    float accCoef = 0.03f;
-    float gyroCoef = 0.97f;
+    float accCoef = 0.2f;
+    float gyroCoef = 0.8f;
 
 
     imu.getSensorData();
@@ -106,8 +106,8 @@ void bmi270_update(void)
     accY = imu.data.accelY;
     accZ = imu.data.accelZ;
     
-    angleAccX = atan2(accY, accZ + abs(accX)) * 360 / 2.0 / PI;
-    angleAccY = atan2(accX, accZ + abs(accY)) * 360 / -2.0 / PI;
+    angleAccX = atan2(accY, accZ ) * 360 / 2.0 / PI;
+    angleAccY = atan2(accX, accZ ) * 360 / -2.0 / PI;
 
     gyroX = imu.data.gyroX;
     gyroY = imu.data.gyroY;
@@ -181,8 +181,8 @@ void HAL::imu_update(void *pvParameters)
 #ifdef D_BOT_HW_V1
 
 
-        bmi270_update();
-        // bmi270_update_kalman();
+        // bmi270_update();
+        bmi270_update_kalman();
 #else
         mpu.update();
 
@@ -192,7 +192,7 @@ void HAL::imu_update(void *pvParameters)
 #endif
         
         vTaskDelay(pdMS_TO_TICKS(5));
-        // log_e("yaw : %f, %f, %f, %f\n", yaw,  mpu.getGyroX(),  mpu.getGyroY(),  mpu.getGyroZ());
+        // log_e("yaw : %f, %f, %f\n", mpu.getGyroX(),  mpu.getGyroY(),  mpu.getGyroZ());
         // unsigned long currentMillis = millis();
         // if (currentMillis - log_pre >= 100) {
         //     log_e("%.2f,%.2f,%.2f,%.2f", 
@@ -293,6 +293,11 @@ float HAL::imu_get_yaw(void)
 float HAL::imu_get_gyro_z(void)
 {
     return g_imu_data.gyro_z;
+}
+
+float HAL::imu_get_gyro_y(void)
+{
+    return g_imu_data.gyro_y;
 }
 
 float HAL::imu_get_abs_yaw(void)

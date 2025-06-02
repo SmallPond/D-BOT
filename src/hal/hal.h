@@ -51,12 +51,21 @@ typedef enum
 
 } MOTOR_RUNNING_MODE_E;
 
-#define MOTOR_MAX_SPEED  15
+#ifdef D_BOT_HW_V1
+
+#define MOTOR_MAX_SPEED  25
 /** using gyro_z */
 // #define BOT_MAX_STEERING 500 
 /** no feedback */
 #define BOT_MAX_STEERING 60
 
+#else
+#define MOTOR_MAX_SPEED  15
+/** using gyro_z */
+// #define BOT_MAX_STEERING 500 
+/** no feedback */
+#define BOT_MAX_STEERING 60
+#endif
 
 #ifdef XK_WIRELESS_PARAMETER
 extern WirelessTuning wireless;
@@ -128,6 +137,7 @@ namespace HAL
     float imu_get_pitch(void);
     float imu_get_yaw(void);
     float imu_get_gyro_z(void);
+    float imu_get_gyro_y(void);
 
     int wireless_param_init(wl_parm_cb cb);
 

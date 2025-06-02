@@ -38,17 +38,17 @@ LowPassFilter lpf_steering = {
 #define MOTOR_MAX_TORQUE 8
 
 PIDController pid_stb {
-    .P = 0.8, .I = 0, .D = 0.02, .ramp = 100000, 
+    .P = 0.3, .I = 0, .D = 0.015, .ramp = 100000, 
     .limit = MOTOR_MAX_TORQUE 
 }; 
 
-#define PID_VEL_P (0.35)
-#define PID_VEL_I (0.00)
+#define PID_VEL_P (0.7)
+#define PID_VEL_I (0.20)
 #define PID_VEL_D (0.00)
 
 
 PIDController pid_steering {
-    .P = 0.015, .I = 0, .D = 0.00, .ramp = 100000, 
+    .P = 0.005, .I = 0, .D = 0.00, .ramp = 100000, 
     .limit = MOTOR_MAX_TORQUE / 2
 };
 
@@ -87,7 +87,7 @@ PIDController  pid_vel_tmp{
 };
 
 
-float g_mid_value = -2; // 偏置参数
+float g_zero_angle = -1.5; // 偏置参数
 float g_throttle = 0;
 float g_steering = 0;
 //目标变量
@@ -425,7 +425,7 @@ static int check_balance_status(float mpu_pitch)
 {
     static unsigned long start_wait = 0;
     
-    if (abs(mpu_pitch - g_mid_value) > BALANCE_STOP_PITCH_OFFSET) {
+    if (abs(mpu_pitch - g_zero_angle) > BALANCE_STOP_PITCH_OFFSET) {
         g_balance_status = BALANCE_OFF;
         return -1;
     }
@@ -450,18 +450,25 @@ static int check_balance_status(float mpu_pitch)
     return 0;
 }
 
+// static void dynamic_angle(void)
+// {
+//     stb
+// }
+
 static int run_balance_task(BLDCMotor *motor_l, BLDCMotor *motor_r,
                                 float throttle, float steering)
 {
     // float voltage_control;
     static unsigned long ctlr_start_ms = 0; 
+    static double target_angle = 0;
     int rc = 0;
     float speed = 0;
     float speed_adj  = 0;
     float stb_adj = 0;
     float steering_adj = 0;
     float all_adj = 0;
-
+    float gyro_y = HAL::imu_get_gyro_y();
+    float gyro_z = HAL::imu_get_gyro_z();
     float mpu_pitch = HAL::imu_get_pitch();
     // float mpu_yaw = HAL::imu_get_yaw();
     // float gyro_z = HAL::imu_get_gyro_z();
@@ -479,7 +486,38 @@ static int run_balance_task(BLDCMotor *motor_l, BLDCMotor *motor_r,
     // float steering_adj = lpf_steering(steering);
 
     /* Parallel PID */
-    stb_adj = pid_stb(g_mid_value - mpu_pitch);
+
+#ifdef D_BOT_HW_V1
+
+    // speed_adj = -pid_vel(speed - lpf_throttle(throttle));
+    // stb_adj = pid_stb.P *(mpu_pitch - g_zero_angle) + pid_stb.D * gyro_y;
+    stb_adj = pid_stb.P *(mpu_pitch - target_angle) + pid_stb.D * gyro_y;
+
+
+    if (throttle != 0 || steering != 0) {
+        pid_vel.I = 0;
+        ctlr_start_ms = millis();
+    } else {
+        if (millis() > ctlr_start_ms + BALANCE_ENABLE_STEERING_I_TIME) {
+            pid_vel.I = pid_vel_tmp.I;
+        }
+    }
+
+    speed_adj = pid_vel(speed - lpf_throttle(throttle));
+    target_angle = g_zero_angle + speed_adj;
+    target_angle = constrain(target_angle, -BALANCE_STOP_PITCH_OFFSET + g_zero_angle,
+                         BALANCE_STOP_PITCH_OFFSET + g_zero_angle);
+
+
+    steering_adj = pid_steering.P * (lpf_steering(steering) - 0) + pid_steering.D * gyro_z;
+    // all_adj = stb_adj + speed_adj;
+    all_adj = stb_adj;
+    
+    motor_l->target = -(all_adj - steering_adj);
+    motor_r->target = (all_adj + steering_adj);
+#else
+
+    stb_adj = pid_stb(g_zero_angle - mpu_pitch);
     if (throttle != 0) {
         pid_vel.I = 0;
         ctlr_start_ms = millis();
@@ -495,6 +533,7 @@ static int run_balance_task(BLDCMotor *motor_l, BLDCMotor *motor_r,
 
     motor_l->target = (all_adj + steering_adj);
     motor_r->target = -(all_adj - steering_adj);
+#endif
 out:
     motor_l->move();
     motor_r->move();
