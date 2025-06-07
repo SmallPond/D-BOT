@@ -22,13 +22,13 @@ static WiFiManagerParameter mqtt_topic_prefix("mqtt_topic_prefix",
 
 void config_mode_cb(WiFiManager *wifi_manager)
 {
-    log_i("进入网络配置模式...");
-    log_i("%s", WiFi.softAPIP().toString().c_str());
-
-    log_i("请连接 WiFi %s 进行配置", wifi_manager->getConfigPortalSSID().c_str());
-    HAL::log_system(SYSTEM_INFO, "connect WiFi: \n%s \naccess: %s", 
-                    wifi_manager->getConfigPortalSSID().c_str(),
-                    WiFi.softAPIP().toString().c_str());
+    log_i("Entered network config mode...");
+    // log_i("%s", WiFi.softAPIP().toString().c_str());
+    HAL::log_system(SYSTEM_INFO, "Connect Wifi %s.", 
+            wifi_manager->getConfigPortalSSID().c_str());
+    HAL::log_system(SYSTEM_INFO, "Open %s to configure the network.",
+                 WiFi.softAPIP().toString().c_str());
+    // log_i("%s", wifi_manager->getConfigPortalSSID().c_str());
 }
 
 static void save_mqtt_config(void)
