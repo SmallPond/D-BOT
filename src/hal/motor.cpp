@@ -869,6 +869,8 @@ void HAL::motor_set_speed(float speed, float steering)
         g_throttle = (float)speed;
         g_steering = (float)-steering;
         // log_e("throttle: %.2f steering %.2f.", g_throttle, g_steering);
+
+        rgb_set_mode_by_status(g_throttle, g_steering);
     }
     
 }

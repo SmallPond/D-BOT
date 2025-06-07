@@ -54,6 +54,7 @@ void HAL::Init()
     system_ui_uninit();
     // xTaskNotifyGive(handleTaskIMU);
     // xTaskNotifyGive(handleTaskMotor);
+    rgb_init();
 }
 
 
@@ -64,6 +65,7 @@ void HAL::Update()
 
     system_led_run(currentMillis);
     audio_update();
+    rgb_update();
     // imu_update();
     // HAL::motor_task(NULL);
 }

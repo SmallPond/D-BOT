@@ -32,7 +32,11 @@
 #define ON_OFF_PIN      18
 #define LVGL_RUNNING_CORE   1            
 #define ESP32_RUNNING_CORE  1
+<<<<<<< HEAD
 #define MOTOR_RUNNING_CORE  0          
+=======
+#define MOTOR_RUNNING_CORE  0            
+>>>>>>> b6f9f82 ([hal] add rgb)
 
  // The owner of the X-Knob      
 #define MQTT_HOST               "dingmos"  
