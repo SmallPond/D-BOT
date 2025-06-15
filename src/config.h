@@ -14,6 +14,12 @@
 #define MO0_3 GPIO_NUM_6
 #define MT6701_SS_0 GPIO_NUM_42
 
+<<<<<<< HEAD
+=======
+#define MO_EN GPIO_NUM_35
+// #define MO_EN GPIO_NUM_40
+
+>>>>>>> 761b5a4 ([ota] Add basic OTA functionality to prepare for subsequent OTA upgrades and integration with Xiaozhi MCP.)
 #define MO1_1 GPIO_NUM_7
 #define MO1_2 GPIO_NUM_15
 #define MO1_3 GPIO_NUM_16

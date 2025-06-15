@@ -36,6 +36,7 @@
 
 #define VERSION_SOFTWARE        "0.3.1"
 #define VERSION_AUTHOR_NAME     "dingmos"
+#define BOARD_NAME              "D-BOT"
 
 
 /* Number to string macro */
