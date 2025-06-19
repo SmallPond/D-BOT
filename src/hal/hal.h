@@ -150,6 +150,7 @@ namespace HAL
     void system_led_init(void);
     void system_led_run(unsigned long currentMillis);
     int system_init(void);
+    bool system_is_network_config(void);
 
     void  imu_init(void);
     void  imu_update(void *pvParameters);
@@ -168,6 +169,8 @@ namespace HAL
     int network_init(void);
     std::string get_wifi_ssid(void);
     std::string get_wifi_passwd(void);
+    void network_update(void *pvParameters);
+    bool is_network_ready(void);
 
     int wireless_tuning_init(void);
     WirelessTuning &get_wl_tuning(void);

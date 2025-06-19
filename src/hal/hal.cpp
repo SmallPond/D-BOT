@@ -33,12 +33,14 @@ void HAL::Init()
     system_init();
     log_system(SYSTEM_INFO, "init network...");
     network_init();
-    log_system(SYSTEM_INFO, "ota check...");
-    ota.CheckVersion();
+    if (is_network_ready()) {
+        log_system(SYSTEM_INFO, "ota check...");
+        ota.CheckVersion();
 #ifdef XK_WIRELESS_PARAMETER
-    log_system(SYSTEM_INFO, "init wireless tuning...");
-    wireless_tuning_init();
+        log_system(SYSTEM_INFO, "init wireless tuning...");
+        wireless_tuning_init();
 #endif
+    }
     log_system(SYSTEM_INFO, "init mpu...");
     imu_init();
     log_system(SYSTEM_INFO, "init motor...");

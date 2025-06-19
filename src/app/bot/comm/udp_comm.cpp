@@ -16,7 +16,9 @@ int UDPComm::Init() {
         udp_.begin(local_port_);
         return 0;
     }
-
+    log_i("netwrok is not connected, skip udp comm init");
+    return -1;
+    /*
     // Attempt to connect to WiFi
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid_.c_str(), password_.c_str());
@@ -37,7 +39,8 @@ int UDPComm::Init() {
 
     // Start UDP
     udp_.begin(local_port_);
-    return 0;
+    */
+
 }
 
 int UDPComm::Send(const JsonDocument& json) {
