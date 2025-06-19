@@ -658,7 +658,7 @@ static int motor_task_mode_update(int &mode, bool &is_changed)
     if (is_timing && millis() - last_change_time >= 1000) {
         mode = mode_tmp; // 更新模式
         is_changed = true; // 标记状态变化
-        log_e("pitch: %d mode from %d change to %d", mpu_pitch, last_mode, mode);
+        log_i("pitch: %d mode from %d change to %d", mpu_pitch, last_mode, mode);
         last_mode = mode; // 更新上一次模式
     }
     
@@ -802,7 +802,6 @@ void HAL::motor_init(void)
     pinMode(MO_EN, OUTPUT);
     digitalWrite(MO_EN, HIGH);  
 
-    log_i("[motor]: calibration %s", g_system_calibration?"true":"false");
     if (g_system_calibration == false) {
         struct motor_offset offset;
         if(!nvs_get_motor_offset(&offset)) {
@@ -811,7 +810,7 @@ void HAL::motor_init(void)
             motor_initFOC(&motor_1, offset.r_offset);
             has_set_offset = true;
         } else {
-            log_i("motor: get config failed, try auto calibration.");
+            log_i("motor: try auto calibration.");
         }
        
     } 
@@ -823,7 +822,6 @@ void HAL::motor_init(void)
     }
     
     log_i("Motor ready.");
-    log_i("Set the target velocity using serial terminal:");
 
     actMotorStatus = new Account("MotorStatus", AccountSystem::Broker(), sizeof(MotorStatusInfo), nullptr);
     actBotStatus = new Account("BotStatus", AccountSystem::Broker(), sizeof(AccountSystem::BotStatusInfo), nullptr);

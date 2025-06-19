@@ -63,7 +63,7 @@ void HAL::rgb_update(void)
 		break;
 	case MODE_STANDBY:
 		/* Front lights white, rear lights off, ambient rainbow cycle */
-		set_front_lights(strip.Color(255, 255, 255));
+		set_front_lights(strip.Color(0, 0, 0));
 		set_rear_lights(strip.Color(0, 0, 0));
 		// breathing_ambient(strip.Color(0, 0, 255), current_millis);
         breathing_ambient_color_cycle(current_millis);

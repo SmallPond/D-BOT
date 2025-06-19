@@ -266,7 +266,7 @@ void HAL::imu_init(void)
         nullptr,
         2,
         &handleTaskIMU,
-        ESP32_RUNNING_CORE);
+        MOTOR_RUNNING_CORE);
     if (ret != pdPASS) {
         log_e("start imu_run task failed.");
         // return -1;
