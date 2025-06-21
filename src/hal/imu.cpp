@@ -54,9 +54,8 @@ void kalman_init()
         imu.getSensorData();
         // pitch = acc2_rotation(imu.data.accelX, imu.data.accelZ);
         pitch = atan2(imu.data.accelX, imu.data.accelZ) * 360 / -2.0 / PI;;
-        log_i("BMI270 pitch: %.2f", pitch);
     }
-
+    log_i("BMI270 pitch: %.2f", pitch);
     kalman_y.setAngle(pitch);
     kalman_pre_interval = micros();
 }
@@ -64,11 +63,10 @@ void kalman_init()
 void calc_gyro_offsets(void)
 {
 	float x = 0, y = 0, z = 0;
-	int16_t rx, ry, rz;
 
     log_i("========================================");
-    log_i("Calculating gyro offsets");
-    log_i("DO NOT MOVE MPU6050");
+    HAL::log_system(SYSTEM_INFO, "Calculating gyro offsets");
+    HAL::log_system(SYSTEM_INFO, "DO NOT MOVE DBOT");
 
     for (int i = 0; i < 3000; i++) {
         imu.getSensorData();
@@ -80,10 +78,6 @@ void calc_gyro_offsets(void)
     gyroXoffset = x / 3000;
     gyroYoffset = y / 3000;
     gyroZoffset = z / 3000;
-
-    imu.getSensorData();
-
-
     log_i("Done!");
     log_i("X : %.2f, Y: %.2f, Z: %.2f", gyroXoffset, gyroYoffset, gyroZoffset);
 
@@ -179,13 +173,10 @@ void HAL::imu_update(void *pvParameters)
     static long log_pre = 0; 
     while(1) {
 #ifdef D_BOT_HW_V1
-
-
         // bmi270_update();
         bmi270_update_kalman();
 #else
         mpu.update();
-
         g_imu_data.angle_y = mpu.getAngleY();
         g_imu_data.angle_z = mpu.getAngleZ();
         g_imu_data.gyro_z = mpu.getGyroZ();
@@ -234,7 +225,7 @@ void HAL::imu_init(void)
     }
     preInterval = millis();
     log_i("BMI270 connected!");
-    calc_gyro_offsets();
+    // calc_gyro_offsets();
 
     kalman_init();
 #else
