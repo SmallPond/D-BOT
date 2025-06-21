@@ -37,6 +37,7 @@ private:
     MenuView View;
     MenuModel Model;
     lv_timer_t* timer;
+    Account* account;
 };
 
 }

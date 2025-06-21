@@ -1,5 +1,6 @@
 #include "Template.h"
 #include <Arduino.h>
+#include "app/app.h"
 using namespace Page;
 
 
@@ -22,6 +23,7 @@ void Template::onCustomAttrConfig()
 
 void Template::onViewLoad()
 {
+	Model.Init();
 	View.Create(root);
 	// lv_label_set_text(View.ui.labelTitle, "Page/BOT");
 
@@ -46,14 +48,14 @@ void Template::onViewWillAppear()
 
 	lv_obj_set_style_bg_color(root, param.color, LV_PART_MAIN);
 	// timer = lv_timer_create(onTimerUpdate, param.time, this);
-	timer = lv_timer_create(onTimerUpdate, LV_DISP_DEF_REFR_PERIOD, this);
+	timer = lv_timer_create(onTimerUpdate, 100, this);
 
 	// emoji_buffer = (unsigned char *)malloc(EMOJI_SIZE);
     // if (emoji_buffer == nullptr) {
 	// 	LV_LOG_ERROR("emoji_buffer malloc failed!\n");
 	// }
         
-	// lv_timer_ready(timer);
+	lv_timer_ready(timer);
 }
 
 void Template::onViewDidAppear()
@@ -76,7 +78,8 @@ void Template::onViewDidDisappear()
 
 void Template::onViewDidUnload()
 {
-	// View.Delete();
+	View.Delete();
+	Model.Deinit();
 }
 
 void Template::AttachEvent(lv_obj_t* obj)
@@ -96,8 +99,14 @@ void Template::Update()
 void Template::onTimerUpdate(lv_timer_t* timer)
 {
 	Template* instance = (Template*)timer->user_data;
-
+	int bot_status = 0;
 	instance->Update();
+
+	instance->Model.GetBotInfo(&bot_status);
+	if (bot_status == BOT_RUNNING_XKNOB) {
+		log_i("switch to xknob ui");
+		instance->Manager->Pop();
+	}
 }
 
 void Template::onEvent(lv_event_t* event)

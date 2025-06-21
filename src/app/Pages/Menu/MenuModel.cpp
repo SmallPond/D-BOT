@@ -1,13 +1,14 @@
 #include "MenuModel.h"
 #include <stdio.h>
 #include <Arduino.h>
+#include "hal/hal.h"
 using namespace Page;
 
 void MenuModel::Init()
 {
     account = new Account("MenuModel", AccountSystem::Broker(), 0, this);
     account->Subscribe("Motor");
-    // account->Subscribe("IMU");
+    account->Subscribe("BotStatus");
     // account->Subscribe("Power");
     // account->Subscribe("Storage");
 }
@@ -21,6 +22,17 @@ void MenuModel::Deinit()
     }
 }
 
+
+void MenuModel::GetBotInfo(int *status)
+{
+
+    AccountSystem::BotStatusInfo bot_status;
+    if (!account->Pull("BotStatus", &bot_status, sizeof(bot_status))) {
+        *status = bot_status.running_mode;
+    } else {
+        *status = 0;
+    }
+}
 
 // void MenuModel::GetBatteryInfo(
 //     int* usage,

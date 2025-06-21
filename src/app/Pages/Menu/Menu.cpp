@@ -76,7 +76,7 @@ void Menu::AttachEvent(lv_obj_t* obj, lv_event_cb_t event_cb)
 
 void Menu::Update()
 {
-	char buf[64];
+	char buf[64];\
 
 	/* System */
 	View.SetSystem(
@@ -92,8 +92,13 @@ void Menu::Update()
 void Menu::onTimerUpdate(lv_timer_t* timer)
 {
 	Menu* instance = (Menu*)timer->user_data;
-
+	int bot_status = 0;
 	instance->Update();
+
+	instance->Model.GetBotInfo(&bot_status);
+	if (bot_status == BOT_RUNNING_BALANCE) {
+		instance->Manager->Push("Pages/Template");
+	}
 }
 
 void Menu::onPlaygroundEvent(lv_event_t* event)

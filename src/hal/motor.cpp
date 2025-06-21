@@ -94,7 +94,6 @@ float g_steering = 0;
 float target_velocity = 0;
 Account* actMotorStatus;
 Account* actBotStatus;
-
 #define MAX_MOTOR_NUM      2
 
 static XKnobConfig x_knob_configs[] = {
@@ -622,13 +621,13 @@ static int run_knob_task(BLDCMotor *motor, int id)
     return 0;
 }
 
+
 static void act_bot_status_publish(int running_mode)
 {
-    AccountSystem::BotStatusInfo info = {
-        .running_mode = running_mode,
-    };
-    actBotStatus->Commit((const void*)&info, sizeof(AccountSystem::BotStatusInfo));
-    actBotStatus->Publish();
+    AccountSystem::BotStatusInfo commit_info; 
+    commit_info.running_mode = running_mode;
+    actBotStatus->Commit((const void*)&commit_info, sizeof(AccountSystem::BotStatusInfo));
+    // actBotStatus->Publish();
 }
 
 static int motor_task_mode_update(int &mode, bool &is_changed)
