@@ -68,9 +68,7 @@ void connectMQTT(void)
     log_i("Attempting MQTT connection...id %s", id.c_str());
 
     if (WiFi.status() != WL_CONNECTED) {
-        if (HAL::setup_wifi()) {
-            return;
-        }
+        return;
     }
 
     // if(conf.mqtt_password.length() > 0){
@@ -92,7 +90,7 @@ void TaskMqttUpdate(void *pvParameters) {
     while(1) {
         long now = millis();
         if (!mqtt_client.connected() && (now - mqtt_last_connect_time) > 5000) {
-            Serial.printf("Reconnecting MQTT");
+            log_e("Reconnecting MQTT");
             mqtt_last_connect_time = now;
             connectMQTT();
         }
@@ -105,7 +103,7 @@ int HAL::mqtt_subscribe(const char *topic)
 {
     bool ret = mqtt_client.subscribe(topic);
     if (ret) {
-        Serial.printf("Subscribe Error to topic:%s\n", topic);
+        log_i("Subscribe Error to topic:%s\n", topic);
     }
     return ret;
 }
@@ -125,7 +123,7 @@ void HAL::mqtt_init(void) {
     struct mqtt_config conf;
     static char mqtt_host[MQTT_SIZE];
     if (WiFi.status() != WL_CONNECTED) {
-        setup_wifi();
+        return;
     }
 
     if (nvs_get_mqtt_config(&conf)) {
