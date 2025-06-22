@@ -48,7 +48,7 @@ PIDController pid_stb {
 
 
 PIDController pid_steering {
-    .P = 0.005, .I = 0, .D = 0.00, .ramp = 100000, 
+    .P = 0.02, .I = 0, .D = 0.00, .ramp = 100000, 
     .limit = MOTOR_MAX_TORQUE / 2
 };
 

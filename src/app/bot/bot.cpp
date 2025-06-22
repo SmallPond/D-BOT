@@ -23,7 +23,7 @@ PIDController pid_bot_s {
 
 #ifdef D_BOT_HW_V1
 PIDController pid_bot_m {
-    .P = 0.07, .I = 0, .D = 0.027, .ramp = 100000, 
+    .P = 0.03, .I = 0, .D = 0.01, .ramp = 100000, 
     .limit = MOTOR_MAX_SPEED
 }; 
 #else
