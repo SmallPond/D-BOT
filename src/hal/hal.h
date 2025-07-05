@@ -53,7 +53,7 @@ typedef enum
 
 #ifdef D_BOT_HW_V1
 
-#define MOTOR_MAX_SPEED  25
+#define MOTOR_MAX_SPEED  20
 /** using gyro_z */
 // #define BOT_MAX_STEERING 500 
 /** no feedback */

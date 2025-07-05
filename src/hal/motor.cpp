@@ -38,12 +38,12 @@ LowPassFilter lpf_steering = {
 #define MOTOR_MAX_TORQUE 8
 
 PIDController pid_stb {
-    .P = 0.3, .I = 0, .D = 0.015, .ramp = 100000, 
+    .P = 0.4, .I = 0, .D = 0.025, .ramp = 100000, 
     .limit = MOTOR_MAX_TORQUE 
 }; 
 
-#define PID_VEL_P (0.7)
-#define PID_VEL_I (0.20)
+#define PID_VEL_P (1.0)
+#define PID_VEL_I (0.00)
 #define PID_VEL_D (0.00)
 
 
