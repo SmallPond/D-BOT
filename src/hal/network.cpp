@@ -82,8 +82,9 @@ int HAL::network_init(void)
 
     if (system_is_network_config()) {
         wm.setConfigPortalBlocking(true);
-        if (!wm.autoConnect(apName.c_str())) {
-            log_e("配置超时，重启设备");
+        if (!wm.startConfigPortal(apName.c_str())) {
+            log_e("启动 ap 失败，重启设备");
+            delay(3000);
             ESP.restart();
         }
     } else {
