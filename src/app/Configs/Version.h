@@ -24,14 +24,10 @@
 #define __VERSION_H
 
 /* Firmware Version */
-#define VERSION_FIRMWARE_NAME   "D-BOT"
-
 #ifdef D_BOT_HW_V1
-#define BOARD_NAME              "D-BOT-V1.0"
-#define VERSION_HARDWARE        "v1.0"
+#define VERSION_FIRMWARE_NAME   "D-BOT-V1"
 #else
-#define BOARD_NAME              "D-BOT-V0.1"
-#define VERSION_HARDWARE        "v0.1"
+#define VERSION_FIRMWARE_NAME   "D-BOT-V0.1"
 #endif
 
 #define VERSION_SOFTWARE        "0.3.1"
