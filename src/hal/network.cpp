@@ -79,7 +79,7 @@ int HAL::network_init(void)
     
     // wm.setConnectRetries(1);
     // wm.startConfigPortal(apName.c_str());
-
+#ifdef D_BOT_V1_PRODUCT
     if (system_is_network_config()) {
         wm.setConfigPortalBlocking(true);
         if (!wm.startConfigPortal(apName.c_str())) {
@@ -92,18 +92,14 @@ int HAL::network_init(void)
         wm.setEnableConfigPortal(false);
         wm.autoConnect(apName.c_str());
     }
+#else
+    if (!wm.autoConnect(apName.c_str())) {
+        log_e("配置超时，重启设备");
+        ESP.restart();
+    }
 
-    // log_i("网络连接成功！");
-
-    // xTaskCreatePinnedToCore(
-    //     network_update,
-    //     "NetworkThread",
-    //     4096,
-    //     nullptr,
-    //     1,
-    //     &handleTaskNetwork,
-    //     ESP32_RUNNING_CORE);
-
+    log_i("网络连接成功！");
+#endif
     return 0;
 }
 
