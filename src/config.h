@@ -16,6 +16,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #define MO_EN GPIO_NUM_35
 // #define MO_EN GPIO_NUM_40
@@ -25,6 +26,8 @@
 >>>>>>> 19f88fa ([hw] hardware v1 is ready)
 
 >>>>>>> 761b5a4 ([ota] Add basic OTA functionality to prepare for subsequent OTA upgrades and integration with Xiaozhi MCP.)
+=======
+>>>>>>> 2b0d606 (feat(conf): add M0_EN and RGB for HW_V1)
 #define MO1_1 GPIO_NUM_7
 #define MO1_2 GPIO_NUM_15
 #define MO1_3 GPIO_NUM_16
@@ -78,7 +81,6 @@
 
 #define WIRELESS_TUNING_PORT      (4242)
 
-<<<<<<< HEAD
 #ifdef D_BOT_HW_V1
 #define MO_EN                 GPIO_NUM_40
 #define CONFIG_RGB_PIN        GPIO_NUM_46
@@ -86,8 +88,4 @@
 #define MO_EN GPIO_NUM_35
 #endif
 
-=======
-// #define CONFIG_RGB_PIN        3
-#define CONFIG_RGB_PIN        GPIO_NUM_46
->>>>>>> 19f88fa ([hw] hardware v1 is ready)
 #endif 
