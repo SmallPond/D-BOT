@@ -14,20 +14,6 @@
 #define MO0_3 GPIO_NUM_6
 #define MT6701_SS_0 GPIO_NUM_42
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-#define MO_EN GPIO_NUM_35
-// #define MO_EN GPIO_NUM_40
-=======
-// #define MO_EN GPIO_NUM_35
-#define MO_EN GPIO_NUM_40
->>>>>>> 19f88fa ([hw] hardware v1 is ready)
-
->>>>>>> 761b5a4 ([ota] Add basic OTA functionality to prepare for subsequent OTA upgrades and integration with Xiaozhi MCP.)
-=======
->>>>>>> 2b0d606 (feat(conf): add M0_EN and RGB for HW_V1)
 #define MO1_1 GPIO_NUM_7
 #define MO1_2 GPIO_NUM_15
 #define MO1_3 GPIO_NUM_16
@@ -46,11 +32,7 @@
 #define ON_OFF_PIN      18
 #define LVGL_RUNNING_CORE   1            
 #define ESP32_RUNNING_CORE  1
-<<<<<<< HEAD
-#define MOTOR_RUNNING_CORE  0          
-=======
 #define MOTOR_RUNNING_CORE  0            
->>>>>>> b6f9f82 ([hal] add rgb)
 
  // The owner of the X-Knob      
 #define MQTT_HOST               "dingmos"  
