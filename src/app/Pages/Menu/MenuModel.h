@@ -16,11 +16,7 @@ public:
         char* info, uint32_t len
     );
 
-    void GetBatteryInfo(
-        int* usage,
-        float* voltage,
-        char* state, uint32_t len
-    );
+    void GetBotInfo(int *status);
 
     void ChangeMotorMode(int mode);
 

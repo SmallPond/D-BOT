@@ -32,7 +32,7 @@
 #define ON_OFF_PIN      18
 #define LVGL_RUNNING_CORE   1            
 #define ESP32_RUNNING_CORE  1
-#define MOTOR_RUNNING_CORE  0          
+#define MOTOR_RUNNING_CORE  0            
 
  // The owner of the X-Knob      
 #define MQTT_HOST               "dingmos"  
@@ -43,7 +43,8 @@
 
 /* system */
 #define SYSTEM_CALIBRATION_BUTTON_PIN  0
-
+#define CONFIG_LEFT_BUTTON_PIN   GPIO_NUM_13
+#define CONFIG_RIGHT_BUTTON_PIN  GPIO_NUM_47
 /* Buzzer */
 #define CONFIG_BUZZ_PIN             18
 #define CONFIG_BUZZ_CHANNEL         2

@@ -54,9 +54,8 @@ void kalman_init()
         imu.getSensorData();
         // pitch = acc2_rotation(imu.data.accelX, imu.data.accelZ);
         pitch = atan2(imu.data.accelX, imu.data.accelZ) * 360 / -2.0 / PI;;
-        log_i("BMI270 pitch: %.2f", pitch);
     }
-
+    log_i("BMI270 pitch: %.2f", pitch);
     kalman_y.setAngle(pitch);
     kalman_pre_interval = micros();
 }
@@ -64,11 +63,10 @@ void kalman_init()
 void calc_gyro_offsets(void)
 {
 	float x = 0, y = 0, z = 0;
-	int16_t rx, ry, rz;
 
     log_i("========================================");
-    log_i("Calculating gyro offsets");
-    log_i("DO NOT MOVE MPU6050");
+    HAL::log_system(SYSTEM_INFO, "Calculating gyro offsets");
+    HAL::log_system(SYSTEM_INFO, "DO NOT MOVE DBOT");
 
     for (int i = 0; i < 3000; i++) {
         imu.getSensorData();
@@ -80,10 +78,6 @@ void calc_gyro_offsets(void)
     gyroXoffset = x / 3000;
     gyroYoffset = y / 3000;
     gyroZoffset = z / 3000;
-
-    imu.getSensorData();
-
-
     log_i("Done!");
     log_i("X : %.2f, Y: %.2f, Z: %.2f", gyroXoffset, gyroYoffset, gyroZoffset);
 
@@ -97,8 +91,8 @@ void bmi270_update(void)
     float angleAccX, angleAccY;
     float gyroX, gyroY, gyroZ;
     float interval;
-    float accCoef = 0.03f;
-    float gyroCoef = 0.97f;
+    float accCoef = 0.2f;
+    float gyroCoef = 0.8f;
 
 
     imu.getSensorData();
@@ -106,8 +100,8 @@ void bmi270_update(void)
     accY = imu.data.accelY;
     accZ = imu.data.accelZ;
     
-    angleAccX = atan2(accY, accZ + abs(accX)) * 360 / 2.0 / PI;
-    angleAccY = atan2(accX, accZ + abs(accY)) * 360 / -2.0 / PI;
+    angleAccX = atan2(accY, accZ ) * 360 / 2.0 / PI;
+    angleAccY = atan2(accX, accZ ) * 360 / -2.0 / PI;
 
     gyroX = imu.data.gyroX;
     gyroY = imu.data.gyroY;
@@ -179,20 +173,17 @@ void HAL::imu_update(void *pvParameters)
     static long log_pre = 0; 
     while(1) {
 #ifdef D_BOT_HW_V1
-
-
-        bmi270_update();
-        // bmi270_update_kalman();
+        // bmi270_update();
+        bmi270_update_kalman();
 #else
         mpu.update();
-
         g_imu_data.angle_y = mpu.getAngleY();
         g_imu_data.angle_z = mpu.getAngleZ();
         g_imu_data.gyro_z = mpu.getGyroZ();
 #endif
         
         vTaskDelay(pdMS_TO_TICKS(5));
-        // log_e("yaw : %f, %f, %f, %f\n", yaw,  mpu.getGyroX(),  mpu.getGyroY(),  mpu.getGyroZ());
+        // log_e("yaw : %f, %f, %f\n", mpu.getGyroX(),  mpu.getGyroY(),  mpu.getGyroZ());
         // unsigned long currentMillis = millis();
         // if (currentMillis - log_pre >= 100) {
         //     log_e("%.2f,%.2f,%.2f,%.2f", 
@@ -234,7 +225,7 @@ void HAL::imu_init(void)
     }
     preInterval = millis();
     log_i("BMI270 connected!");
-    calc_gyro_offsets();
+    // calc_gyro_offsets();
 
     kalman_init();
 #else
@@ -266,7 +257,7 @@ void HAL::imu_init(void)
         nullptr,
         2,
         &handleTaskIMU,
-        ESP32_RUNNING_CORE);
+        MOTOR_RUNNING_CORE);
     if (ret != pdPASS) {
         log_e("start imu_run task failed.");
         // return -1;
@@ -293,6 +284,11 @@ float HAL::imu_get_yaw(void)
 float HAL::imu_get_gyro_z(void)
 {
     return g_imu_data.gyro_z;
+}
+
+float HAL::imu_get_gyro_y(void)
+{
+    return g_imu_data.gyro_y;
 }
 
 float HAL::imu_get_abs_yaw(void)

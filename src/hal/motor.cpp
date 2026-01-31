@@ -28,10 +28,35 @@ LowPassFilter lpf_steering = {
     .Tf = 0.5
 };
 
-#define MOTOR_MAX_TORQUE 7
 #define BALANCE_WAITTING_TIME  1000
 #define BALANCE_ENABLE_STEERING_I_TIME  3000
 #define BALANCE_STOP_PITCH_OFFSET 40
+
+// P = 0.1 I= 0.08
+#ifdef D_BOT_HW_V1
+
+#define MOTOR_MAX_TORQUE 8
+
+PIDController pid_stb {
+    .P = 0.4, .I = 0, .D = 0.025, .ramp = 100000, 
+    .limit = MOTOR_MAX_TORQUE 
+}; 
+
+#define PID_VEL_P (1.0)
+#define PID_VEL_I (0.00)
+#define PID_VEL_D (0.00)
+
+
+PIDController pid_steering {
+    .P = 0.02, .I = 0, .D = 0.00, .ramp = 100000, 
+    .limit = MOTOR_MAX_TORQUE / 2
+};
+
+
+#else
+
+#define MOTOR_MAX_TORQUE 7
+
 // control algorithm parametersw
 // stabilisation pid
 // 初始值 P0.3 D: 0.02  -- 0.18 0.024
@@ -39,33 +64,36 @@ PIDController pid_stb {
     .P = 0.3, .I = 0, .D = 0.008, .ramp = 100000, 
     .limit = MOTOR_MAX_TORQUE 
 }; 
-// P = 0.1 I= 0.08
+
 #define PID_VEL_P (0.3)
 #define PID_VEL_I (0.02)
 #define PID_VEL_D (0.00)
-PIDController pid_vel {
-    .P = PID_VEL_P, .I = PID_VEL_I, .D = PID_VEL_D, .ramp = 100000, 
-    .limit = MOTOR_MAX_TORQUE
-};
-
-PIDController pid_vel_tmp{
-    .P = PID_VEL_P, .I = PID_VEL_I, .D = PID_VEL_D, .ramp = 100000, 
-    .limit = MOTOR_MAX_TORQUE
-};
 
 PIDController pid_steering {
     .P = 0.01, .I = 0, .D = 0.00, .ramp = 100000, 
     .limit = MOTOR_MAX_TORQUE / 2
 };
 
-float g_mid_value = -2; // 偏置参数
+#endif
+
+PIDController pid_vel {
+    .P = PID_VEL_P, .I = PID_VEL_I, .D = PID_VEL_D, .ramp = 100000, 
+    .limit = MOTOR_MAX_TORQUE
+};
+
+PIDController  pid_vel_tmp{
+    .P = PID_VEL_P, .I = PID_VEL_I, .D = PID_VEL_D, .ramp = 100000, 
+    .limit = MOTOR_MAX_TORQUE
+};
+
+
+float g_zero_angle = -1.5; // 偏置参数
 float g_throttle = 0;
 float g_steering = 0;
 //目标变量
 float target_velocity = 0;
 Account* actMotorStatus;
 Account* actBotStatus;
-
 #define MAX_MOTOR_NUM      2
 
 static XKnobConfig x_knob_configs[] = {
@@ -396,7 +424,7 @@ static int check_balance_status(float mpu_pitch)
 {
     static unsigned long start_wait = 0;
     
-    if (abs(mpu_pitch - g_mid_value) > BALANCE_STOP_PITCH_OFFSET) {
+    if (abs(mpu_pitch - g_zero_angle) > BALANCE_STOP_PITCH_OFFSET) {
         g_balance_status = BALANCE_OFF;
         return -1;
     }
@@ -421,18 +449,25 @@ static int check_balance_status(float mpu_pitch)
     return 0;
 }
 
+// static void dynamic_angle(void)
+// {
+//     stb
+// }
+
 static int run_balance_task(BLDCMotor *motor_l, BLDCMotor *motor_r,
                                 float throttle, float steering)
 {
     // float voltage_control;
     static unsigned long ctlr_start_ms = 0; 
+    static double target_angle = 0;
     int rc = 0;
     float speed = 0;
     float speed_adj  = 0;
     float stb_adj = 0;
     float steering_adj = 0;
     float all_adj = 0;
-
+    float gyro_y = HAL::imu_get_gyro_y();
+    float gyro_z = HAL::imu_get_gyro_z();
     float mpu_pitch = HAL::imu_get_pitch();
     // float mpu_yaw = HAL::imu_get_yaw();
     // float gyro_z = HAL::imu_get_gyro_z();
@@ -450,7 +485,38 @@ static int run_balance_task(BLDCMotor *motor_l, BLDCMotor *motor_r,
     // float steering_adj = lpf_steering(steering);
 
     /* Parallel PID */
-    stb_adj = pid_stb(g_mid_value - mpu_pitch);
+
+#ifdef D_BOT_HW_V1
+
+    // speed_adj = -pid_vel(speed - lpf_throttle(throttle));
+    // stb_adj = pid_stb.P *(mpu_pitch - g_zero_angle) + pid_stb.D * gyro_y;
+    stb_adj = pid_stb.P *(mpu_pitch - target_angle) + pid_stb.D * gyro_y;
+
+
+    if (throttle != 0 || steering != 0) {
+        pid_vel.I = 0;
+        ctlr_start_ms = millis();
+    } else {
+        if (millis() > ctlr_start_ms + BALANCE_ENABLE_STEERING_I_TIME) {
+            pid_vel.I = pid_vel_tmp.I;
+        }
+    }
+
+    speed_adj = pid_vel(speed - lpf_throttle(throttle));
+    target_angle = g_zero_angle + speed_adj;
+    target_angle = constrain(target_angle, -BALANCE_STOP_PITCH_OFFSET + g_zero_angle,
+                         BALANCE_STOP_PITCH_OFFSET + g_zero_angle);
+
+
+    steering_adj = pid_steering.P * (lpf_steering(steering) - 0) + pid_steering.D * gyro_z;
+    // all_adj = stb_adj + speed_adj;
+    all_adj = stb_adj;
+    
+    motor_l->target = -(all_adj - steering_adj);
+    motor_r->target = (all_adj + steering_adj);
+#else
+
+    stb_adj = pid_stb(g_zero_angle - mpu_pitch);
     if (throttle != 0) {
         pid_vel.I = 0;
         ctlr_start_ms = millis();
@@ -466,6 +532,7 @@ static int run_balance_task(BLDCMotor *motor_l, BLDCMotor *motor_r,
 
     motor_l->target = (all_adj + steering_adj);
     motor_r->target = -(all_adj - steering_adj);
+#endif
 out:
     motor_l->move();
     motor_r->move();
@@ -554,13 +621,13 @@ static int run_knob_task(BLDCMotor *motor, int id)
     return 0;
 }
 
+
 static void act_bot_status_publish(int running_mode)
 {
-    AccountSystem::BotStatusInfo info = {
-        .running_mode = running_mode,
-    };
-    actBotStatus->Commit((const void*)&info, sizeof(AccountSystem::BotStatusInfo));
-    actBotStatus->Publish();
+    AccountSystem::BotStatusInfo commit_info; 
+    commit_info.running_mode = running_mode;
+    actBotStatus->Commit((const void*)&commit_info, sizeof(AccountSystem::BotStatusInfo));
+    // actBotStatus->Publish();
 }
 
 static int motor_task_mode_update(int &mode, bool &is_changed)
@@ -590,7 +657,7 @@ static int motor_task_mode_update(int &mode, bool &is_changed)
     if (is_timing && millis() - last_change_time >= 1000) {
         mode = mode_tmp; // 更新模式
         is_changed = true; // 标记状态变化
-        log_e("pitch: %d mode from %d change to %d", mpu_pitch, last_mode, mode);
+        log_i("pitch: %d mode from %d change to %d", mpu_pitch, last_mode, mode);
         last_mode = mode; // 更新上一次模式
     }
     
@@ -691,11 +758,7 @@ static void init_motor(BLDCMotor *motor,BLDCDriver3PWM *driver,GenericSensor *se
 
     motor->monitor_variables = _MON_TARGET | _MON_VEL | _MON_ANGLE;
 
-#ifdef XK_WIRELESS_PARAMETER
-    motor->useMonitoring(HAL::get_wl_tuning());
-#else
     motor->useMonitoring(Serial);
-#endif
     //初始化电机
     motor->init();
     // motor->initFOC();
@@ -713,6 +776,12 @@ void motor_initFOC(BLDCMotor *motor, float offset)
             log_i("motor zero electric angle: %.2f", motor->zero_electric_angle);
         }
     }
+
+#ifdef XK_WIRELESS_PARAMETER
+    motor->useMonitoring(HAL::get_wl_tuning());
+#else
+    motor->useMonitoring(Serial);
+#endif
 }
 
 void HAL::motor_init(void)
@@ -732,7 +801,6 @@ void HAL::motor_init(void)
     pinMode(MO_EN, OUTPUT);
     digitalWrite(MO_EN, HIGH);  
 
-    log_i("[motor]: calibration %s", g_system_calibration?"true":"false");
     if (g_system_calibration == false) {
         struct motor_offset offset;
         if(!nvs_get_motor_offset(&offset)) {
@@ -741,7 +809,7 @@ void HAL::motor_init(void)
             motor_initFOC(&motor_1, offset.r_offset);
             has_set_offset = true;
         } else {
-            log_i("motor: get config failed, try auto calibration.");
+            log_i("motor: try auto calibration.");
         }
        
     } 
@@ -753,7 +821,6 @@ void HAL::motor_init(void)
     }
     
     log_i("Motor ready.");
-    log_i("Set the target velocity using serial terminal:");
 
     actMotorStatus = new Account("MotorStatus", AccountSystem::Broker(), sizeof(MotorStatusInfo), nullptr);
     actBotStatus = new Account("BotStatus", AccountSystem::Broker(), sizeof(AccountSystem::BotStatusInfo), nullptr);
@@ -799,6 +866,8 @@ void HAL::motor_set_speed(float speed, float steering)
         g_throttle = (float)speed;
         g_steering = (float)-steering;
         // log_e("throttle: %.2f steering %.2f.", g_throttle, g_steering);
+
+        rgb_set_mode_by_status(g_throttle, g_steering);
     }
     
 }

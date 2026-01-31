@@ -33,12 +33,14 @@ void HAL::Init()
     system_init();
     log_system(SYSTEM_INFO, "init network...");
     network_init();
-    log_system(SYSTEM_INFO, "ota check...");
-    ota.CheckVersion();
+    if (is_network_ready()) {
+        log_system(SYSTEM_INFO, "ota check...");
+        ota.CheckVersion();
 #ifdef XK_WIRELESS_PARAMETER
-    log_system(SYSTEM_INFO, "init wireless tuning...");
-    wireless_tuning_init();
+        log_system(SYSTEM_INFO, "init wireless tuning...");
+        wireless_tuning_init();
 #endif
+    }
     log_system(SYSTEM_INFO, "init mpu...");
     imu_init();
     log_system(SYSTEM_INFO, "init motor...");
@@ -54,6 +56,7 @@ void HAL::Init()
     system_ui_uninit();
     // xTaskNotifyGive(handleTaskIMU);
     // xTaskNotifyGive(handleTaskMotor);
+    rgb_init();
 }
 
 
@@ -64,6 +67,7 @@ void HAL::Update()
 
     system_led_run(currentMillis);
     audio_update();
+    rgb_update();
     // imu_update();
     // HAL::motor_task(NULL);
 }

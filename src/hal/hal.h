@@ -51,12 +51,21 @@ typedef enum
 
 } MOTOR_RUNNING_MODE_E;
 
-#define MOTOR_MAX_SPEED  15
+#ifdef D_BOT_HW_V1
+
+#define MOTOR_MAX_SPEED  20
 /** using gyro_z */
 // #define BOT_MAX_STEERING 500 
 /** no feedback */
 #define BOT_MAX_STEERING 60
 
+#else
+#define MOTOR_MAX_SPEED  15
+/** using gyro_z */
+// #define BOT_MAX_STEERING 500 
+/** no feedback */
+#define BOT_MAX_STEERING 60
+#endif
 
 #ifdef XK_WIRELESS_PARAMETER
 extern WirelessTuning wireless;
@@ -68,6 +77,26 @@ extern bool g_system_calibration;
 
 extern TaskHandle_t handleTaskMotor;
 extern TaskHandle_t handleTaskIMU;
+
+
+/*
+ * Light mode enumeration
+ *
+ * @MODE_OFF: All lights turned off
+ * @MODE_STANDBY: Vehicle in standby/balanced state
+ * @MODE_DRIVING: Vehicle in normal operation
+ * @MODE_BRAKING: Vehicle braking
+ * @MODE_TURNING_LEFT: Vehicle turning left
+ * @MODE_TURNING_RIGHT: Vehicle turning right
+ */
+enum light_mode {
+	MODE_OFF,
+	MODE_STANDBY,
+	MODE_DRIVING,
+	MODE_BRAKING,
+	MODE_TURNING_LEFT,
+	MODE_TURNING_RIGHT,
+};
 
 typedef void (* cmd_cb)(char*);
 namespace HAL
@@ -121,6 +150,7 @@ namespace HAL
     void system_led_init(void);
     void system_led_run(unsigned long currentMillis);
     int system_init(void);
+    bool system_is_network_config(void);
 
     void  imu_init(void);
     void  imu_update(void *pvParameters);
@@ -128,6 +158,7 @@ namespace HAL
     float imu_get_pitch(void);
     float imu_get_yaw(void);
     float imu_get_gyro_z(void);
+    float imu_get_gyro_y(void);
 
     int wireless_param_init(wl_parm_cb cb);
 
@@ -138,10 +169,17 @@ namespace HAL
     int network_init(void);
     std::string get_wifi_ssid(void);
     std::string get_wifi_passwd(void);
+    void network_update(void *pvParameters);
+    bool is_network_ready(void);
 
     int wireless_tuning_init(void);
     WirelessTuning &get_wl_tuning(void);
     int add_tuning_cmd(char id, cmd_cb cb, char* label);
+
+    void rgb_update(void);
+    void rgb_init(void);
+    void rgb_set_mode(enum light_mode new_mode);
+    void rgb_set_mode_by_status(float speed, float steering);
 }
 
 

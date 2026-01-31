@@ -34,7 +34,7 @@
 #define VERSION_HARDWARE        "v0.1"
 #endif
 
-#define VERSION_SOFTWARE        "0.3.1"
+#define VERSION_SOFTWARE        "0.3.2"
 #define VERSION_AUTHOR_NAME     "dingmos"
 
 

@@ -75,27 +75,8 @@ void Hass::AttachEvent(lv_obj_t* obj)
 }
 
 
-int onActEvent(Account* account, Account::EventParam_t* param)
-{
-    if (param->size != sizeof(AccountSystem::BotStatusInfo))
-    {
-        return Account::ERROR_SIZE_MISMATCH;
-    }
-    
-    AccountSystem::BotStatusInfo *info = (AccountSystem::BotStatusInfo*) (param->data_p);
-    
-    if (info->running_mode == BOT_RUNNING_BALANCE) {
-		
-	}
-
-    return 0;
-}
-
 void Hass::onViewDidLoad()
 {
-	account = new Account("HASS", AccountSystem::Broker(), 0, NULL);
-    account->SetEventCallback(onActEvent);
-    account->Subscribe("MotorStatus");
 }
 
 void Hass::onViewWillAppear()

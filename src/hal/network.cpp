@@ -22,13 +22,13 @@ static WiFiManagerParameter mqtt_topic_prefix("mqtt_topic_prefix",
 
 void config_mode_cb(WiFiManager *wifi_manager)
 {
-    log_i("进入网络配置模式...");
-    log_i("%s", WiFi.softAPIP().toString().c_str());
-
-    log_i("请连接 WiFi %s 进行配置", wifi_manager->getConfigPortalSSID().c_str());
-    HAL::log_system(SYSTEM_INFO, "connect WiFi: \n%s \naccess: %s", 
-                    wifi_manager->getConfigPortalSSID().c_str(),
-                    WiFi.softAPIP().toString().c_str());
+    log_i("Entered network config mode...");
+    // log_i("%s", WiFi.softAPIP().toString().c_str());
+    HAL::log_system(SYSTEM_INFO, "connect WiFi:\n%s.", 
+            wifi_manager->getConfigPortalSSID().c_str());
+    HAL::log_system(SYSTEM_INFO, "open %s to configure the network.",
+                 WiFi.softAPIP().toString().c_str());
+    // log_i("%s", wifi_manager->getConfigPortalSSID().c_str());
 }
 
 static void save_mqtt_config(void)
@@ -53,6 +53,15 @@ void save_config_cb()
     log_i("配置已保存，准备重启");
     ESP.restart();
 }
+// TaskHandle_t handleTaskNetwork;
+// void HAL::network_update(void *pvParameters)
+// {
+//     while(1) {
+//         wm.process();
+//         vTaskDelay(pdMS_TO_TICKS(1));
+//     }
+// }
+
 
 int HAL::network_init(void)
 {
@@ -66,14 +75,31 @@ int HAL::network_init(void)
     wm.addParameter(&mqtt_topic_prefix);
     wm.setAPCallback(config_mode_cb);
     wm.setSaveConfigCallback(save_config_cb);
-    wm.setConfigPortalTimeout(300);
-
+    // wm.setConfigPortalTimeout(300);
+    
+    // wm.setConnectRetries(1);
+    // wm.startConfigPortal(apName.c_str());
+#ifdef D_BOT_V1_PRODUCT
+    if (system_is_network_config()) {
+        wm.setConfigPortalBlocking(true);
+        if (!wm.startConfigPortal(apName.c_str())) {
+            log_e("启动 ap 失败，重启设备");
+            delay(3000);
+            ESP.restart();
+        }
+    } else {
+        wm.setConfigPortalBlocking(false);
+        wm.setEnableConfigPortal(false);
+        wm.autoConnect(apName.c_str());
+    }
+#else
     if (!wm.autoConnect(apName.c_str())) {
         log_e("配置超时，重启设备");
         ESP.restart();
     }
 
     log_i("网络连接成功！");
+#endif
     return 0;
 }
 
@@ -85,4 +111,10 @@ std::string HAL::get_wifi_ssid(void)
 std::string HAL::get_wifi_passwd(void)
 {
     return std::string(wm.getWiFiPass().c_str());
+}
+
+
+bool HAL::is_network_ready(void)
+{
+    return (WiFi.status() == WL_CONNECTED);
 }

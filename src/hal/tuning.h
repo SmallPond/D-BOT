@@ -8,7 +8,7 @@ extern PIDController pid_vel;
 extern PIDController pid_stb;
 extern PIDController pid_vel_tmp;
 extern PIDController pid_steering;
-extern float g_mid_value;
+extern float g_zero_angle;
 extern BLDCMotor motor_0;
 extern BLDCMotor motor_1;
 
